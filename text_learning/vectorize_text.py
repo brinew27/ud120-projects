@@ -59,6 +59,8 @@ for name, from_person in [("sara", from_sara), ("chris", from_chris)]:
             emailtext = emailtext.replace("shackleton", "")
             emailtext = emailtext.replace("chris", "")
             emailtext = emailtext.replace("germani", "")
+            emailtext = emailtext.replace("sshacklensf", "")
+            emailtext = emailtext.replace("cgermannsf", "")
 
             ### append the text to word_data
 
@@ -77,7 +79,7 @@ print "emails processed"
 from_sara.close()
 from_chris.close()
 
-print(word_data[152])
+#print(word_data[152])
 
 pickle.dump( word_data, open("your_word_data.pkl", "w") )
 pickle.dump( from_data, open("your_email_authors.pkl", "w") )
@@ -91,5 +93,5 @@ pickle.dump( from_data, open("your_email_authors.pkl", "w") )
 vectorizer = TfidfVectorizer(stop_words='english')
 X = vectorizer.fit_transform(word_data)
 featurenames = vectorizer.get_feature_names()
-print(featurenames[34597])
-print(len(vectorizer.get_feature_names()))
+#print(featurenames[34597])
+#print(len(vectorizer.get_feature_names()))
