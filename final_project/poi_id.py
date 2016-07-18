@@ -5,12 +5,23 @@ import pickle
 sys.path.append("../tools/")
 
 from feature_format import featureFormat, targetFeatureSplit
-from tester import dump_classifier_and_data
+from tester import dump_classifier_and_data, load_classifier_and_data, test_classifier
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
+from sklearn.feature_selection import SelectKBest, f_classif
 
 ### Task 1: Select what features you'll use.
 ### features_list is a list of strings, each of which is a feature name.
 ### The first feature must be "poi".
-features_list = ['poi','salary'] # You will need to use more features
+#features_list = ['poi','salary', 'deferral_payments', 'total_payments', 'loan_advances', 'bonus',
+#                 'restricted_stock_deferred', 'deferred_income', 'total_stock_value', 'expenses',
+#                 'exercised_stock_options', 'other', 'long_term_incentive', 'restricted_stock', 'director_fees',
+#                 'to_messages', 'from_poi_to_this_person', 'from_messages', 'from_this_person_to_poi',
+#                 'shared_receipt_with_poi'] # You will need to use more features
+
+#features_list = ['poi', 'bonus', 'shared_receipt_with_poi', 'total_stock_value']
+
+features_list = ['poi', 'deferral_payments', 'total_payments', 'bonus', 'restricted_stock_deferred']
 
 ### Load the dictionary containing the dataset
 with open("final_project_dataset.pkl", "r") as data_file:
@@ -33,9 +44,26 @@ labels, features = targetFeatureSplit(data)
 ### you'll need to use Pipelines. For more info:
 ### http://scikit-learn.org/stable/modules/pipeline.html
 
+#selected = SelectKBest(f_classif,5).fit(features,labels)
+#print selected.scores_
+#print selected.pvalues_
+
+#i=0
+
+#for pvalue in selected.pvalues_:
+#   if pvalue > .7:
+#    print(pvalue)
+#    print(features_list[i + 1])
+
+#    i += 1
+
 # Provided to give you a starting point. Try a variety of classifiers.
-from sklearn.naive_bayes import GaussianNB
-clf = GaussianNB()
+#from sklearn.naive_bayes import GaussianNB
+#clf = GaussianNB()
+from sklearn.tree import DecisionTreeClassifier
+clf = DecisionTreeClassifier()
+#from sklearn.svm import SVC
+#clf = SVC(kernel="rbf", C=100.0)
 
 ### Task 5: Tune your classifier to achieve better than .3 precision and recall 
 ### using our testing script. Check the tester.py script in the final project
@@ -49,9 +77,38 @@ from sklearn.cross_validation import train_test_split
 features_train, features_test, labels_train, labels_test = \
     train_test_split(features, labels, test_size=0.3, random_state=42)
 
+#selector = SelectPercentile(f_classif, percentile=20)
+#selector.fit(features_train, labels_train)
+#print(selector.get_support())
+#features_train_transformed = selector.transform(features_train).toarray()
+#features_test_transformed  = selector.transform(features_test).toarray()
+
+clf = clf.fit(features_train, labels_train)
+
+pred = clf.predict(features_test)
+
+print(clf.score(features_test, labels_test))
+print(precision_score(labels_test, pred))
+print(recall_score(labels_test, pred))
+print(labels_train)
+print(clf.predict(features_train))
+print(clf.score(features_test, labels_test))
+
+i = 0
+
+for importance in clf.feature_importances_:
+   if importance > .2:
+    print(importance)
+    print(features_list[i + 1])
+
+    i += 1
+
 ### Task 6: Dump your classifier, dataset, and features_list so anyone can
 ### check your results. You do not need to change anything below, but make sure
 ### that the version of poi_id.py that you submit can be run on its own and
 ### generates the necessary .pkl files for validating your results.
 
 dump_classifier_and_data(clf, my_dataset, features_list)
+
+clf, dataset, feature_list = load_classifier_and_data()
+test_classifier(clf, dataset, feature_list)
